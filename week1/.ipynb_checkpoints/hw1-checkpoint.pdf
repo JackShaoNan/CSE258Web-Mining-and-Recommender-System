@@ -1,0 +1,725 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Reading data...\n",
+      "done\n"
+     ]
+    }
+   ],
+   "source": [
+    "import numpy\n",
+    "import urllib\n",
+    "import scipy.optimize\n",
+    "import random\n",
+    "\n",
+    "def parseData(fname):\n",
+    "  for l in urllib.urlopen(fname):\n",
+    "    yield eval(l)\n",
+    "\n",
+    "print \"Reading data...\"\n",
+    "data = list(parseData(\"http://jmcauley.ucsd.edu/cse190/data/beer/beer_50000.json\"))\n",
+    "print \"done\""
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def feature(datum):\n",
+    "  feat = [1]\n",
+    "  feat.append(datum['user/ageInSeconds'])\n",
+    "  return feat"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {
+    "scrolled": true
+   },
+   "outputs": [
+    {
+     "ename": "KeyError",
+     "evalue": "'user/ageInSeconds'",
+     "output_type": "error",
+     "traceback": [
+      "\u001b[0;31m---------------------------------------------------------------------------\u001b[0m",
+      "\u001b[0;31mKeyError\u001b[0m                                  Traceback (most recent call last)",
+      "\u001b[0;32m<ipython-input-3-8de20212ca2b>\u001b[0m in \u001b[0;36m<module>\u001b[0;34m()\u001b[0m\n\u001b[0;32m----> 1\u001b[0;31m \u001b[0mX\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0;34m[\u001b[0m\u001b[0mfeature\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0md\u001b[0m\u001b[0;34m)\u001b[0m \u001b[0;32mfor\u001b[0m \u001b[0md\u001b[0m \u001b[0;32min\u001b[0m \u001b[0mdata\u001b[0m\u001b[0;34m]\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m      2\u001b[0m \u001b[0my\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0;34m[\u001b[0m\u001b[0md\u001b[0m\u001b[0;34m[\u001b[0m\u001b[0;34m'review/overall'\u001b[0m\u001b[0;34m]\u001b[0m \u001b[0;32mfor\u001b[0m \u001b[0md\u001b[0m \u001b[0;32min\u001b[0m \u001b[0mdata\u001b[0m\u001b[0;34m]\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m      3\u001b[0m \u001b[0mtheta\u001b[0m\u001b[0;34m,\u001b[0m\u001b[0mresiduals\u001b[0m\u001b[0;34m,\u001b[0m\u001b[0mrank\u001b[0m\u001b[0;34m,\u001b[0m\u001b[0ms\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mnumpy\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mlinalg\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mlstsq\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mX\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0my\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;32m<ipython-input-2-11d2a82ae15b>\u001b[0m in \u001b[0;36mfeature\u001b[0;34m(datum)\u001b[0m\n\u001b[1;32m      1\u001b[0m \u001b[0;32mdef\u001b[0m \u001b[0mfeature\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mdatum\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m      2\u001b[0m   \u001b[0mfeat\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0;34m[\u001b[0m\u001b[0;36m1\u001b[0m\u001b[0;34m]\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m----> 3\u001b[0;31m   \u001b[0mfeat\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mappend\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mdatum\u001b[0m\u001b[0;34m[\u001b[0m\u001b[0;34m'user/ageInSeconds'\u001b[0m\u001b[0;34m]\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m      4\u001b[0m   \u001b[0;32mreturn\u001b[0m \u001b[0mfeat\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;31mKeyError\u001b[0m: 'user/ageInSeconds'"
+     ]
+    }
+   ],
+   "source": [
+    "X = [feature(d) for d in data]\n",
+    "y = [d['review/overall'] for d in data]\n",
+    "theta,residuals,rank,s = numpy.linalg.lstsq(X, y)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 44,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "array([ 4.09478473e+00, -1.58610537e-10])"
+      ]
+     },
+     "execution_count": 44,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "theta"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 45,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "matrix([[3.90290031e+00],\n",
+       "        [7.61015628e-12]])"
+      ]
+     },
+     "execution_count": 45,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "X = numpy.matrix(X)\n",
+    "y = numpy.matrix(y)\n",
+    "numpy.linalg.inv(X.T * X) * X.T * y.T"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "/anaconda2/lib/python2.7/site-packages/ipykernel_launcher.py:10: FutureWarning: `rcond` parameter will change to the default of machine precision times ``max(M, N)`` where M and N are the input matrix dimensions.\n",
+      "To use the future default and silence this warning we advise to pass `rcond=None`, to keep using the old, explicitly pass `rcond=-1`.\n",
+      "  # Remove the CWD from sys.path while we load stuff.\n"
+     ]
+    }
+   ],
+   "source": [
+    "data2 = [d for d in data if d.has_key('user/ageInSeconds')]\n",
+    "\n",
+    "def feature(datum):\n",
+    "  feat = [1]\n",
+    "  feat.append(datum['user/ageInSeconds'])\n",
+    "  return feat\n",
+    "\n",
+    "X = [feature(d) for d in data2]\n",
+    "y = [d['review/overall'] for d in data2]\n",
+    "theta,residuals,rank,s = numpy.linalg.lstsq(X, y)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "array([ 4.03141470e+00, -1.02488687e-10])"
+      ]
+     },
+     "execution_count": 5,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "theta"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 49,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "10389"
+      ]
+     },
+     "execution_count": 49,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "len(data)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 53,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "{'beer/ABV': 8.2,\n",
+       " 'beer/beerId': '37518',\n",
+       " 'beer/brewerId': '14879',\n",
+       " 'beer/name': 'Mean Manalishi Double I.P.A.',\n",
+       " 'beer/style': 'American Double / Imperial IPA',\n",
+       " 'review/appearance': 3.0,\n",
+       " 'review/aroma': 4.0,\n",
+       " 'review/overall': 2.5,\n",
+       " 'review/palate': 2.5,\n",
+       " 'review/taste': 3.0,\n",
+       " 'review/text': 'poured a copper color that was ok. excellent head that stayed throughout. good carbonation and good lacing through the drink. the smell is a very intense hop aroma. the taste is an overwhelimg hop experience. i love hops but this is too much even for me. it will take a couple of hours for me palate to recover. \\t\\tmaybe too much of a good thing.\\t\\tsuckem up and movem out.\\t\\tgiblet',\n",
+       " 'review/timeStruct': {'hour': 10,\n",
+       "  'isdst': 0,\n",
+       "  'mday': 16,\n",
+       "  'min': 11,\n",
+       "  'mon': 5,\n",
+       "  'sec': 14,\n",
+       "  'wday': 4,\n",
+       "  'yday': 137,\n",
+       "  'year': 2008},\n",
+       " 'review/timeUnix': 1210932674,\n",
+       " 'user/ageInSeconds': 1505225047,\n",
+       " 'user/birthdayRaw': 'Apr 1, 1967',\n",
+       " 'user/birthdayUnix': -86889600,\n",
+       " 'user/gender': 'Male',\n",
+       " 'user/profileName': 'giblet'}"
+      ]
+     },
+     "execution_count": 53,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "data[645]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 54,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "[1, 2366546647]"
+      ]
+     },
+     "execution_count": 54,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "max(X)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 55,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "[1, 703436648]"
+      ]
+     },
+     "execution_count": 55,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "min(X)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 57,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "1.0"
+      ]
+     },
+     "execution_count": 57,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "min([d['review/taste'] for d in data if d.has_key('review/taste')])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "{1.0: 211,\n",
+       " 1.5: 343,\n",
+       " 2.0: 1099,\n",
+       " 2.5: 1624,\n",
+       " 3.0: 4137,\n",
+       " 3.5: 8797,\n",
+       " 4.0: 16575,\n",
+       " 4.5: 12883,\n",
+       " 5.0: 4331}"
+      ]
+     },
+     "execution_count": 13,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "# 1. What is the distribution of ratings in the dataset (for ‘review/taste’)? That is, \n",
+    "# how many 1-star, 2-star, 3-star (etc.) reviews are there? You may write out the values \n",
+    "# or include a simple plot (1 mark).\n",
+    "def dis_rate(datam):\n",
+    "    res = {1.0:0, 1.5:0, 2.0:0, 2.5:0, 3.0:0, 3.5:0, 4.0:0, 4.5:0, 5.0:0}\n",
+    "    for d in data: \n",
+    "      if d.has_key('review/taste'):\n",
+    "        res[d['review/taste']] = res[d['review/taste']] + 1\n",
+    "    return res\n",
+    "res = dis_rate(data)\n",
+    "res"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "{'beer/ABV': 4.7,\n",
+       " 'beer/beerId': '52159',\n",
+       " 'beer/brewerId': '1075',\n",
+       " 'beer/name': 'Caldera Ginger Beer',\n",
+       " 'beer/style': 'Herbed / Spiced Beer',\n",
+       " 'review/appearance': 3.5,\n",
+       " 'review/aroma': 2.5,\n",
+       " 'review/overall': 3.0,\n",
+       " 'review/palate': 2.0,\n",
+       " 'review/taste': 3.5,\n",
+       " 'review/text': 'Bottle says \"Malt beverage brewed with Ginger and ginger added\" Sounds redundant to me, but lets move on.\\t\\tPours a bud light yellow with a tiny white head of small bubbles. The beer is almost as clear as a glass of water with some food coloring in it.\\t\\tAroma of light ginger, a very light malt aroma but primarily odorless on the malt side. I wouldn\\'t be completely surprised if there were some adjuncts in here because of the lack of underlying malt flavors. Taste is of a light adjunct lager with a dosing of ginger. Not surprising there. \\t\\tThis is a light session beer, good for the warmer days of spring / summer. Mouthfeel is extremely light, high carbonation.\\t\\tOverall decent. This would be great if you were drinking beers on draft at the bar with some friends just hanging out. I wouldn\\'t necessarily seek it out though to drink out of a bottle.',\n",
+       " 'review/timeStruct': {'hour': 22,\n",
+       "  'isdst': 0,\n",
+       "  'mday': 24,\n",
+       "  'min': 26,\n",
+       "  'mon': 5,\n",
+       "  'sec': 58,\n",
+       "  'wday': 1,\n",
+       "  'yday': 144,\n",
+       "  'year': 2011},\n",
+       " 'review/timeUnix': 1306276018,\n",
+       " 'user/gender': 'Male',\n",
+       " 'user/profileName': 'alpinebryant'}"
+      ]
+     },
+     "execution_count": 14,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "data[7]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "{1.0: 211,\n",
+       " 1.5: 343,\n",
+       " 2.0: 1099,\n",
+       " 2.5: 1624,\n",
+       " 3.0: 4137,\n",
+       " 3.5: 8797,\n",
+       " 4.0: 16575,\n",
+       " 4.5: 12883,\n",
+       " 5.0: 4331}"
+      ]
+     },
+     "execution_count": 9,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "res\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "/anaconda2/lib/python2.7/site-packages/ipykernel_launcher.py:15: FutureWarning: `rcond` parameter will change to the default of machine precision times ``max(M, N)`` where M and N are the input matrix dimensions.\n",
+      "To use the future default and silence this warning we advise to pass `rcond=None`, to keep using the old, explicitly pass `rcond=-1`.\n",
+      "  from ipykernel import kernelapp as app\n"
+     ]
+    },
+    {
+     "data": {
+      "text/plain": [
+       "array([ 3.11795084, -0.05637406,  0.10877902])"
+      ]
+     },
+     "execution_count": 16,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "# 2. Train a simple predictor to predict a beer’s ‘taste’ score using two features: \n",
+    "# review/taste ≃ θ0 + θ1 × [beer is a Hefeweizen] + θ2 × beer/ABV Report the values \n",
+    "# of θ0, θ1, and θ2. Briefly describe your interpretation of these values, i.e., \n",
+    "# what do θ0, θ1, and θ2 represent (1 mark)?\n",
+    "def feature(datam):\n",
+    "    feat = [1]\n",
+    "    if datam['beer/style'] == \"Hefeweizen\":\n",
+    "        feat.append(1)\n",
+    "    else:\n",
+    "        feat.append(0)\n",
+    "    feat.append(datam['beer/ABV'])\n",
+    "    return feat\n",
+    "X = [feature(d) for d in data]\n",
+    "Y = [d['review/taste'] for d in data]\n",
+    "theta,residuals,rank,s = numpy.linalg.lstsq(X, Y)\n",
+    "theta\n",
+    "# The euqation can be represented in : review/taste = [θ0, θ1, θ2].[1, isHefeweizen, beer/ABV]\n",
+    "# if beer is Hefeweizen, θ1 = 1 else θ1 = 0"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 21,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[ 2.99691466 -0.03573098  0.11672256]\n",
+      "0.48396805601335435\n",
+      "0.4237065211985192\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "/anaconda2/lib/python2.7/site-packages/ipykernel_launcher.py:10: FutureWarning: `rcond` parameter will change to the default of machine precision times ``max(M, N)`` where M and N are the input matrix dimensions.\n",
+      "To use the future default and silence this warning we advise to pass `rcond=None`, to keep using the old, explicitly pass `rcond=-1`.\n",
+      "  # Remove the CWD from sys.path while we load stuff.\n"
+     ]
+    }
+   ],
+   "source": [
+    "# 3. Split the data into two equal fractions – the first half for training, \n",
+    "# the second half for testing (based on the order they appear in the file). \n",
+    "# Train the same model as above on the training set only. What is the model’s \n",
+    "# MSE on the training and on the test set (1 mark)?\n",
+    "length = len(data)\n",
+    "train = data[:length/2]\n",
+    "test = data[length/2:length]\n",
+    "X = [feature(d) for d in train]\n",
+    "Y = [d['review/taste'] for d in train]\n",
+    "theta,residuals,rank,s = numpy.linalg.lstsq(X, Y)\n",
+    "print theta\n",
+    "# MSE for train\n",
+    "def MSE(data, theta): \n",
+    "    res = 0\n",
+    "    for d in data:\n",
+    "        f = feature(d)\n",
+    "        res = res + numpy.square(d['review/taste'] - (theta[0] + theta[1]*f[1] + theta[2]*f[2]))\n",
+    "    res = res / len(data)\n",
+    "    return res\n",
+    "print MSE(train, theta)\n",
+    "print MSE(test, theta)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 31,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "/anaconda2/lib/python2.7/site-packages/ipykernel_launcher.py:10: FutureWarning: `rcond` parameter will change to the default of machine precision times ``max(M, N)`` where M and N are the input matrix dimensions.\n",
+      "To use the future default and silence this warning we advise to pass `rcond=None`, to keep using the old, explicitly pass `rcond=-1`.\n",
+      "  # Remove the CWD from sys.path while we load stuff.\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "0.4493078565642915\n",
+      "0.4500863204509322\n"
+     ]
+    }
+   ],
+   "source": [
+    "# 4. Using the first half for training and the second half for testing may \n",
+    "# lead to unexpected results (e.g. the training error could be higher than the test error). \n",
+    "# Repeat the above experiment by using a random 50% split of the data \n",
+    "# (i.e., half for training, half for testing, after first shuffling the data). \n",
+    "# Report the MSE on the train and test set, and suggest one possible reason why the result \n",
+    "# may be different from the previous experiment (1 mark).rand_data = numpy.copy(data)\n",
+    "mse_train = 0\n",
+    "mse_test = 0\n",
+    "for i in range(100):\n",
+    "    numpy.random.shuffle(rand_data)\n",
+    "    train = rand_data[:length/2]\n",
+    "    test = rand_data[length/2:length]\n",
+    "    X = [feature(d) for d in train]\n",
+    "    Y = [d['review/taste'] for d in train]\n",
+    "    theta,residuals,rank,s = numpy.linalg.lstsq(X, Y)\n",
+    "    mse_train = mse_train + MSE(train, theta)\n",
+    "    mse_test = mse_test + MSE(test, theta)\n",
+    "print mse_train / 100\n",
+    "print mse_test / 100\n",
+    "# the mse for test set is bigger than train set, this happens because the \n",
+    "# shuffled data are more irregular and less predictable"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 45,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "/anaconda2/lib/python2.7/site-packages/ipykernel_launcher.py:23: FutureWarning: `rcond` parameter will change to the default of machine precision times ``max(M, N)`` where M and N are the input matrix dimensions.\n",
+      "To use the future default and silence this warning we advise to pass `rcond=None`, to keep using the old, explicitly pass `rcond=-1`.\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "0.449572584422136\n",
+      "0.4497999696853456\n"
+     ]
+    }
+   ],
+   "source": [
+    "# 5. Modify your experiment from Question 4 to use the features \n",
+    "# review/taste ≃ θ0 + θ1 × [ABV if beer is a Hefeweizen] + θ2 × [ABV if beer is not a Hefeweizen]\n",
+    "# e.g. the first beer in the dataset would have feature [1, 5.0, 0] since the beer is a Hefeweizen. \n",
+    "# Report the training and testing MSE of this method (1 mark).\n",
+    "rand_data = numpy.copy(data)\n",
+    "mse_train = 0\n",
+    "mse_test = 0\n",
+    "length = len(rand_data)\n",
+    "def feature(datam):\n",
+    "    feat = [1]\n",
+    "    if datam['beer/style'] == \"Hefeweizen\":\n",
+    "        feat.append(datam['beer/ABV'])\n",
+    "        feat.append(0)\n",
+    "    else:\n",
+    "        feat.append(0)\n",
+    "        feat.append(datam['beer/ABV'])\n",
+    "    return feat\n",
+    "for i in range(100):\n",
+    "    numpy.random.shuffle(rand_data)\n",
+    "    train = rand_data[:length/2]\n",
+    "    test = rand_data[length/2:length]\n",
+    "    X = [feature(d) for d in train]\n",
+    "    Y = [d['review/taste'] for d in train]\n",
+    "    theta,residuals,rank,s = numpy.linalg.lstsq(X, Y)\n",
+    "    mse_train = mse_train + MSE(train, theta)\n",
+    "    mse_test = mse_test + MSE(test, theta)\n",
+    "print mse_train / 100\n",
+    "print mse_test / 100"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# 6. The model from Question 5 uses the same two features as the model \n",
+    "# from Questions 2-4 and has the same dimensionality. Comment on why the \n",
+    "# two models might perform differently (1 mark).\n",
+    "\n",
+    "# Answer： Although they both have ABV and style, they are just different features. the feature used in Q5 is less\n",
+    "# irregular and more predictable, so in Q5, mse_test is more closer to mse_train"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 55,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "0.98792\n",
+      "0.98736\n"
+     ]
+    }
+   ],
+   "source": [
+    "# 7. First, let’s train a predictor that estimates whether a beer is a ‘Hefeweizen’ \n",
+    "# using five features describing its rating:\n",
+    "# [‘review/taste’, ‘review/appearance’, ‘review/aroma’, ‘review/palate’, ‘review/overall’].\n",
+    "# Train your predictor using an SVM classifier (see the code provided in class). \n",
+    "# Use a random split of the data as we did in Question 4. Use a regularization constant of \n",
+    "# C = 1000 as in the code stub. What is the accuracy (percentage of correct classifications) \n",
+    "# of the predictor on the train and test data? (1 mark)\n",
+    "\n",
+    "from sklearn import svm\n",
+    "from sklearn.metrics import accuracy_score\n",
+    "\n",
+    "rand_data = numpy.copy(data)\n",
+    "length = len(rand_data)\n",
+    "X = [[d['review/taste'],d['review/appearance'],d['review/aroma'],d['review/palate'],d['review/overall'],] for d in rand_data]\n",
+    "Y = [\"Hefeweizen\" in d['beer/style'] for d in rand_data]\n",
+    "X_train = X[:length/2]\n",
+    "Y_train = Y[:length/2]\n",
+    "X_test = X[length/2:]\n",
+    "Y_test = Y[length/2:]\n",
+    "# svm modle\n",
+    "clf = svm.SVC(C=1000, kernel='linear')\n",
+    "clf.fit(X_train, Y_train)\n",
+    "train_predictions = clf.predict(X_train)\n",
+    "test_predictions = clf.predict(X_test)\n",
+    "\n",
+    "# accuracy\n",
+    "accuracy_train = accuracy_score(train_predictions, Y_train)\n",
+    "accuracy_test = accuracy_score(test_predictions, Y_test)\n",
+    "print accuracy_train\n",
+    "print accuracy_test"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "0.98936\n",
+      "0.98768\n"
+     ]
+    }
+   ],
+   "source": [
+    "# 8. Considering same prediction problem as above, can you come up with \n",
+    "# a more accurate predictor (e.g. using features from the text, or otherwise)? \n",
+    "# Write down the feature vector you design, and report its train/test accuracy (1 mark).\n",
+    "import numpy\n",
+    "import urllib\n",
+    "import scipy.optimize\n",
+    "import random\n",
+    "from sklearn import svm\n",
+    "from sklearn.metrics import accuracy_score\n",
+    "\n",
+    "# I use review/taste, beer/ABV and  \"Hefeweizen\" in'review/text' to form the feature\n",
+    "rand_data = numpy.copy(data)\n",
+    "length = len(rand_data)\n",
+    "X = [[d['review/taste'],d['beer/ABV'], \"Hefeweizen\" in d['review/text']] for d in rand_data]\n",
+    "Y = [\"Hefeweizen\" in d['beer/style'] for d in rand_data]\n",
+    "X_train = X[:length/2]\n",
+    "Y_train = Y[:length/2]\n",
+    "X_test = X[length/2:]\n",
+    "Y_test = Y[length/2:]\n",
+    "# svm modle\n",
+    "clf = svm.SVC(C=1000, kernel='linear')\n",
+    "clf.fit(X_train, Y_train)\n",
+    "train_predictions = clf.predict(X_train)\n",
+    "test_predictions = clf.predict(X_test)\n",
+    "\n",
+    "# accuracy\n",
+    "accuracy_train = accuracy_score(train_predictions, Y_train)\n",
+    "accuracy_test = accuracy_score(test_predictions, Y_test)\n",
+    "print accuracy_train\n",
+    "print accuracy_test"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 2",
+   "language": "python",
+   "name": "python2"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 2
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython2",
+   "version": "2.7.15"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}
